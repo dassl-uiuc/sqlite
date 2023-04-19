@@ -226,7 +226,7 @@ int sqlite3OsOpen(
   ** SQLITE_OPEN_FULLMUTEX or SQLITE_OPEN_SHAREDCACHE) are blocked before
   ** reaching the VFS. */
   assert( zPath || (flags & SQLITE_OPEN_EXCLUSIVE) );
-  rc = pVfs->xOpen(pVfs, zPath, pFile, flags & 0x1087f7f, pFlagsOut);
+  rc = pVfs->xOpen(pVfs, zPath, pFile, flags & 0x1887f7f, pFlagsOut);
   assert( rc==SQLITE_OK || pFile->pMethods==0 );
   return rc;
 }

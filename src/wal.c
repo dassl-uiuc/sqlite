@@ -1548,7 +1548,7 @@ int sqlite3WalOpen(
   pRet->exclusiveMode = (bNoShm ? WAL_HEAPMEMORY_MODE: WAL_NORMAL_MODE);
 
   /* Open file handle on the write-ahead log file. */
-  flags = (SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_WAL);
+  flags = (SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_WAL|O_CSL);
   rc = sqlite3OsOpen(pVfs, zWalName, pRet->pWalFd, flags, &flags);
   if( rc==SQLITE_OK && flags&SQLITE_OPEN_READONLY ){
     pRet->readOnly = WAL_RDONLY;

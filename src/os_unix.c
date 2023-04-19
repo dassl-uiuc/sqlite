@@ -44,6 +44,7 @@
 **      plus implementations of sqlite3_os_init() and sqlite3_os_end().
 */
 #include "sqliteInt.h"
+#include <csl.h>
 #if SQLITE_OS_UNIX              /* This file is used on unix only */
 
 /*
@@ -6147,6 +6148,7 @@ static int unixOpen(
   int isCreate     = (flags & SQLITE_OPEN_CREATE);
   int isReadonly   = (flags & SQLITE_OPEN_READONLY);
   int isReadWrite  = (flags & SQLITE_OPEN_READWRITE);
+  int isNCL        = (flags & O_CSL);
 #if SQLITE_ENABLE_LOCKING_STYLE
   int isAutoProxy  = (flags & SQLITE_OPEN_AUTOPROXY);
 #endif
@@ -6252,6 +6254,7 @@ static int unixOpen(
   if( isReadWrite ) openFlags |= O_RDWR;
   if( isCreate )    openFlags |= O_CREAT;
   if( isExclusive ) openFlags |= (O_EXCL|O_NOFOLLOW);
+  if( isNCL )       openFlags |= O_CSL;
   openFlags |= (O_LARGEFILE|O_BINARY|O_NOFOLLOW);
 
   if( fd<0 ){
