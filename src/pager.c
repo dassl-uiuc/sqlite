@@ -21,6 +21,7 @@
 #ifndef SQLITE_OMIT_DISKIO
 #include "sqliteInt.h"
 #include "wal.h"
+#include <time.h>
 
 
 /******************* NOTES ON THE DESIGN OF THE PAGER ************************
@@ -5185,6 +5186,10 @@ static int hasHotJournal(Pager *pPager, int *pExists){
 */
 int sqlite3PagerSharedLock(Pager *pPager){
   int rc = SQLITE_OK;                /* Return code */
+  struct timespec start = {
+    .tv_nsec = 0,
+    .tv_sec = 0
+  }, end;
 
   /* This routine is only called from b-tree and only when there are no
   ** outstanding pages. This implies that the pager state should either
@@ -5365,6 +5370,7 @@ int sqlite3PagerSharedLock(Pager *pPager){
     /* If there is a WAL file in the file-system, open this database in WAL
     ** mode. Otherwise, the following function call is a no-op.
     */
+    clock_gettime(CLOCK_MONOTONIC, &start);
     rc = pagerOpenWalIfPresent(pPager);
 #ifndef SQLITE_OMIT_WAL
     assert( pPager->pWal==0 || rc==SQLITE_OK );
@@ -5374,6 +5380,12 @@ int sqlite3PagerSharedLock(Pager *pPager){
   if( pagerUseWal(pPager) ){
     assert( rc==SQLITE_OK );
     rc = pagerBeginReadTransaction(pPager);
+  }
+
+  if (start.tv_sec > 0) {
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    long duration = (end.tv_sec * 1000000 + end.tv_nsec / 1000) - (start.tv_sec * 1000000 + start.tv_nsec / 1000);
+    printf("wal load duration %ld us\n", duration);
   }
 
   if( pPager->tempFile==0 && pPager->eState==PAGER_OPEN && rc==SQLITE_OK ){
