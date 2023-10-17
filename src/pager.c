@@ -5189,7 +5189,7 @@ int sqlite3PagerSharedLock(Pager *pPager){
   struct timespec start = {
     .tv_nsec = 0,
     .tv_sec = 0
-  }, end;
+  }, after_open, end;
 
   /* This routine is only called from b-tree and only when there are no
   ** outstanding pages. This implies that the pager state should either
@@ -5372,6 +5372,9 @@ int sqlite3PagerSharedLock(Pager *pPager){
     */
     clock_gettime(CLOCK_MONOTONIC, &start);
     rc = pagerOpenWalIfPresent(pPager);
+    clock_gettime(CLOCK_MONOTONIC, &after_open);
+    long duration = (after_open.tv_sec * 1000000 + after_open.tv_nsec / 1000) - (start.tv_sec * 1000000 + start.tv_nsec / 1000);
+    printf("after open %ld us\n", duration);
 #ifndef SQLITE_OMIT_WAL
     assert( pPager->pWal==0 || rc==SQLITE_OK );
 #endif
